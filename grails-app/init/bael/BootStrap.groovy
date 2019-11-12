@@ -12,10 +12,10 @@ class BootStrap {
         def windstar = new Model(name: 'Windstar',make: ford ).save()
         def silverado = new Model(name: '2500', make:chevy).save()
 
-        new Vehicle(name: 'Pickup', make: nissan, model:titan, year:2012).save()
-        new Vehicle(name:'Economy', make: nissan, model: leaf, year: 2014).save()
-        new Vehicle(name:'Minivan', make: ford, Model: windstar, year: 1990).save()
-        new Vehicle(name:'Pickup', make: chevy, Model: silverado, year: 2015).save()
+        new Vehicle(name:'Pickup', make: nissan, model:titan, year:2012).save()
+        new Vehicle(name:'Economy', make: nissan, model:leaf, year: 2014).save()
+        new Vehicle(name:'Minivan', make: ford, model: windstar, year: 1990).save()
+        new Vehicle(name:'Pickup', make: chevy, model: silverado, year: 2015).save()
 
     }
     def destroy = {

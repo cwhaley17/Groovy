@@ -2,5 +2,5 @@ package bael
 
 class MakeController {
 
-    def index() { }
+    static scaffold = Make
 }

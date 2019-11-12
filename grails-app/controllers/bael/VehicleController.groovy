@@ -2,5 +2,5 @@ package bael
 
 class VehicleController {
 
-    def index() { }
+    static scaffold = Vehicle
 }

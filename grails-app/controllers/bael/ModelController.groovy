@@ -2,5 +2,5 @@ package bael
 
 class ModelController {
 
-    def index() { }
+    static scaffold = Model
 }
