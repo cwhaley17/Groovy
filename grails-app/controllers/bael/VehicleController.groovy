@@ -1,39 +1,48 @@
 package bael
 
-import grails.validation.ValidationException
-import static org.springframework.http.HttpStatus.*
+import static org.springframework.http.HttpStatus.CREATED
+import static org.springframework.http.HttpStatus.OK
+import static org.springframework.http.HttpStatus.NOT_FOUND
+import static org.springframework.http.HttpStatus.NO_CONTENT
+import grails.transaction.Transactional
 
+@SuppressWarnings('LineLength')
+@Transactional(readOnly = true)
 class VehicleController {
 
-    VehicleService vehicleService
+    static allowedMethods = [save: 'POST', update: 'PUT', delete: 'DELETE']
 
-    static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
+    def valueEstimateService //<1>
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond vehicleService.list(params), model:[vehicleCount: vehicleService.count()]
+        respond Vehicle.list(params), model:[vehicleCount: Vehicle.count()]
     }
 
-    def show(Long id) {
-        respond vehicleService.get(id)
+    def show(Vehicle vehicle) {
+        respond vehicle, model: [estimatedValue: valueEstimateService.getEstimate(vehicle)]
     }
 
+    @SuppressWarnings(['FactoryMethodName', 'GrailsMassAssignment'])
     def create() {
         respond new Vehicle(params)
     }
 
+    @Transactional
     def save(Vehicle vehicle) {
         if (vehicle == null) {
+            transactionStatus.setRollbackOnly()
             notFound()
             return
         }
 
-        try {
-            vehicleService.save(vehicle)
-        } catch (ValidationException e) {
+        if (vehicle.hasErrors()) {
+            transactionStatus.setRollbackOnly()
             respond vehicle.errors, view:'create'
             return
         }
+
+        vehicle.save flush:true
 
         request.withFormat {
             form multipartForm {
@@ -44,46 +53,52 @@ class VehicleController {
         }
     }
 
-    def edit(Long id) {
-        respond vehicleService.get(id)
+    def edit(Vehicle vehicle) {
+        respond vehicle
     }
 
+    @Transactional
     def update(Vehicle vehicle) {
         if (vehicle == null) {
+            transactionStatus.setRollbackOnly()
             notFound()
             return
         }
 
-        try {
-            vehicleService.save(vehicle)
-        } catch (ValidationException e) {
+        if (vehicle.hasErrors()) {
+            transactionStatus.setRollbackOnly()
             respond vehicle.errors, view:'edit'
             return
         }
+
+        vehicle.save flush:true
 
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.updated.message', args: [message(code: 'vehicle.label', default: 'Vehicle'), vehicle.id])
                 redirect vehicle
             }
-            '*'{ respond vehicle, [status: OK] }
+            '*' { respond vehicle, [status: OK] }
         }
     }
 
-    def delete(Long id) {
-        if (id == null) {
+    @Transactional
+    def delete(Vehicle vehicle) {
+
+        if (vehicle == null) {
+            transactionStatus.setRollbackOnly()
             notFound()
             return
         }
 
-        vehicleService.delete(id)
+        vehicle.delete flush:true
 
         request.withFormat {
             form multipartForm {
-                flash.message = message(code: 'default.deleted.message', args: [message(code: 'vehicle.label', default: 'Vehicle'), id])
-                redirect action:"index", method:"GET"
+                flash.message = message(code: 'default.deleted.message', args: [message(code: 'vehicle.label', default: 'Vehicle'), vehicle.id])
+                redirect action: 'index', method: 'GET'
             }
-            '*'{ render status: NO_CONTENT }
+            '*' { render status: NO_CONTENT }
         }
     }
 
@@ -91,9 +106,9 @@ class VehicleController {
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.not.found.message', args: [message(code: 'vehicle.label', default: 'Vehicle'), params.id])
-                redirect action: "index", method: "GET"
+                redirect action: 'index', method: 'GET'
             }
-            '*'{ render status: NOT_FOUND }
+            '*' { render status: NOT_FOUND }
         }
     }
 }
