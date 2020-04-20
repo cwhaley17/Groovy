@@ -4,6 +4,8 @@ Following along to this: https://guides.grails.org/creating-your-first-grails-ap
 
 I used SDKMan to install.
 
+`Update on 4/20/2020 - stopped committing to this as the project kicked off.`
+
 On a windows 10 machine, I had to install ubuntu from the microsoft store. From there, I needed to download the jre and skd for JAVA 8
 # important USE JAVA 8
 
